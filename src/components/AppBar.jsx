@@ -1,8 +1,12 @@
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import Constants from 'expo-constants';
 import theme from '../theme';
 import Text from './Text';
 import { Link } from 'react-router-native';
+import { useQuery, useApolloClient } from '@apollo/client';
+import { ME } from '../graqhql/queries';
+import { useContext } from "react";
+import AuthStorageContext from "../contexts/AuthStorageContext";
 
 const styles = StyleSheet.create({
   container: {
@@ -12,30 +16,52 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
-
   },
   text: {
     fontWeight: theme.fontWeights.bold,
     fontSize: theme.fontSizes.subheading,
-    color: theme.colors.textContrast
+    color: theme.colors.textContrast,
   },
   link: {
     marginHorizontal: 10,
-  }
+  },
 });
 
 const AppBar = () => {
+  const { data } = useQuery(ME, {
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const authStorage = useContext(AuthStorageContext);
+  const apolloClient = useApolloClient();
+
+  const signOut = async () => {
+    try {
+      await authStorage.removeAccessToken();
+      await apolloClient.resetStore();
+      console.log('Signed out successfully');
+    } catch (error) {
+      console.error('Error during sign-out:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView horizontal>
         <Link style={styles.link} to="/">
           <Text style={styles.text}>Repositories</Text>
         </Link>
-        <Link style={styles.link} to="/signin" >
-          <Text style={styles.text}>Sign-In</Text>
-        </Link>
+        {data?.me?.id ? (
+          <Pressable onPress={signOut} style={styles.link}>
+            <Text style={styles.text}>Sign-Out</Text>
+          </Pressable>
+        ) : (
+          <Link style={styles.link} to="/signin">
+            <Text style={styles.text}>Sign-In</Text>
+          </Link>
+        )}
       </ScrollView>
-    </View >
+    </View>
   );
 };
 
