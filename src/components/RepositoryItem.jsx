@@ -1,6 +1,8 @@
-import { View, Image, StyleSheet } from "react-native";
+import { View, Image, StyleSheet, Button } from "react-native";
 import Text from "./Text";
 import theme from "../theme";
+import { Linking } from "react-native";
+
 
 const styles = StyleSheet.create({
   container: {
@@ -46,6 +48,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 5,
   },
+  buttonContainer: {
+    backgroundColor: theme.colors.label,
+    marginVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
+
 });
 
 function formatNumber(num) {
@@ -57,41 +68,52 @@ function formatNumber(num) {
   }
 }
 
-
-const RepositoryItem = ({ repository }) => {
+const RepositoryItem = ({ repository, showGithubButton = false }) => {
   return (
-    <View style={styles.container}>
+    <View testID="repositoryItem" style={styles.container}>
       <View style={styles.topSection}>
+
         <Image style={styles.avatar} source={{ uri: repository.ownerAvatarUrl }} />
         <View style={styles.details}>
-          <Text style={styles.name} color="textPrimary" fontWeight="bold" fontSize="subheading">
+          <Text testID='fullName' style={styles.name} color="textPrimary" fontWeight="bold" fontSize="subheading">
             {repository.fullName}
           </Text>
-          <Text color="textSecondary">{repository.description}</Text>
+          <Text testID='description' color="textSecondary">{repository.description}</Text>
           <View style={styles.label}>
-            <Text color="textContrast">{repository.language}</Text>
+            <Text testID='language' color="textContrast">{repository.language}</Text>
           </View>
         </View>
       </View>
 
       <View style={styles.statsSection}>
         <View style={styles.statsItem}>
-          <Text style={styles.statValue}>{formatNumber(repository.forksCount)}</Text>
+          <Text testID='forksCount' style={styles.statValue}>{formatNumber(repository.forksCount)}</Text>
           <Text>Forks</Text>
         </View>
         <View style={styles.statsItem}>
-          <Text style={styles.statValue}>{formatNumber(repository.stargazersCount)}</Text>
+          <Text testID='stargazersCount' style={styles.statValue}>{formatNumber(repository.stargazersCount)}</Text>
           <Text>Stars</Text>
         </View>
         <View style={styles.statsItem}>
-          <Text style={styles.statValue}>{formatNumber(repository.ratingAverage)}</Text>
+          <Text testID='ratingAverage' style={styles.statValue}>{formatNumber(repository.ratingAverage)}</Text>
           <Text>Rating</Text>
         </View>
         <View style={styles.statsItem}>
-          <Text style={styles.statValue}>{formatNumber(repository.reviewCount)}</Text>
+          <Text testID='reviewCount' style={styles.statValue}>{formatNumber(repository.reviewCount)}</Text>
           <Text>Reviews</Text>
         </View>
       </View>
+      {showGithubButton && (
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Open in GitHub"
+            color={theme.colors.textContrast}
+            onPress={() => {
+              Linking.openURL(repository.url);
+            }}
+          />
+        </View>
+      )}
     </View>
   );
 };

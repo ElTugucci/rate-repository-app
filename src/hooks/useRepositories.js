@@ -1,7 +1,9 @@
 import { useQuery } from '@apollo/client';
 import { GET_REPOSITORIES } from '../graqhql/queries';
-const useRepositories = () => {
-  const { data, loading, error, refetch } = useQuery(GET_REPOSITORIES, {
+
+const useRepositories = (variables) => {
+  const { data, loading, error, refetch, fetchMore, ...result } = useQuery(GET_REPOSITORIES, {
+    variables,
     fetchPolicy: 'cache-and-network',
   });
 
@@ -9,12 +11,30 @@ const useRepositories = () => {
     console.error("Error fetching repositories:", error);
   }
 
-  const repositories = data?.repositories;
-  if (error) {
-    console.log(error)
-  }
+  const handleFetchMore = () => {
+    const canFetchMore = !loading && data?.repositories.pageInfo.hasNextPage
 
-  return { repositories, loading, refetch };
+    if (!canFetchMore) {
+      return
+    }
+
+    fetchMore({
+      variables: {
+        after: data.repositories.pageInfo.endCursor,
+        ...variables
+      }
+    })
+  }
+  const repositories = data ? data.repositories : undefined
+
+  return {
+    repositories,
+    fetchMore: handleFetchMore,
+    loading,
+    error,
+    refetch,
+    ...result
+  };
 };
 
 export default useRepositories;

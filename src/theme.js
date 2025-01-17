@@ -6,7 +6,8 @@ const theme = {
     primary: '#0366d6',
     secondary: '#353a3f',
     textContrast: '#f3f4f5',
-    label: '#1E90FF'
+    label: '#1E90FF',
+    red: '#FF6347'
   },
   fontSizes: {
     body: 14,
